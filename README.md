@@ -41,14 +41,7 @@ Sidejot is an AI-powered Pomodoro Planner designed to be privacy-focused, ADHD-f
    bun install
    ```
 
-3. Set up environment variables:
-   You can create a `.env.local` file, but the app allows you to enter your OpenRouter API Key directly in the Settings UI for a completely client-side experience.
-   
-   If you want to provide a default key for development:
-   ```bash
-   # .env.local
-   OPENROUTER_API_KEY=your_key_here
-   ```
+3. Enter your OpenRouter API key in the app's Settings UI. Keys are stored locally in your browser — there is no shared server-side key.
 
 4. Run the development server:
    ```bash

@@ -111,7 +111,7 @@ export function Settings({
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="openrouter-key">OpenRouter API Key</Label>
+        <Label htmlFor="openrouter-key">OpenRouter API Key (required)</Label>
         <Input
           id="openrouter-key"
           type="password"
@@ -119,9 +119,10 @@ export function Settings({
           onChange={(e) => setOpenRouterKey(e.target.value)}
           placeholder="Enter your OpenRouter API key"
           className="font-mono"
+          required
         />
         <p className="text-sm text-muted-foreground">
-          Get your API key from{' '}
+          AI features require your own OpenRouter API key. Get one from{' '}
           <a
             href="https://openrouter.ai/keys"
             target="_blank"
@@ -130,7 +131,8 @@ export function Settings({
           >
             OpenRouter's dashboard
           </a>
-          . OpenRouter provides access to hundreds of AI models from multiple providers.
+          . Your key is stored locally in your browser and never sent to our
+          servers except as a request header to OpenRouter.
         </p>
       </div>
 

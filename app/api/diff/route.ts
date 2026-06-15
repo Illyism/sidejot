@@ -1,14 +1,19 @@
-import { getOpenRouter } from '@/lib/ai'
+import { getApiKeyFromRequest, getOpenRouter } from '@/lib/ai'
 import { AI_CONFIG } from '@/lib/config'
 import { generateText } from 'ai'
 import { format } from 'date-fns'
 import { diffWords } from 'diff'
 import { NextResponse } from 'next/server'
 
+function fallbackSummary(type: string, current: string): string {
+  const words = current.trim().split(/\s+/).slice(0, 5).join(' ')
+  return words || `Initial ${type}`
+}
+
 async function getTitle(
   type: string,
   current: string,
-  apiKey?: string,
+  apiKey: string,
   model?: string,
 ) {
   const openrouter = getOpenRouter(apiKey)
@@ -27,30 +32,27 @@ Return a single, concise sentence summary of the current ${type} (max 5 words), 
 export async function POST(request: Request) {
   try {
     const { current, previous, type } = await request.json()
-    const apiKey = request.headers.get('x-openai-key')
+    const apiKey = getApiKeyFromRequest(request)
     const model = request.headers.get('x-model') || AI_CONFIG.defaultModel
+
+    if (!apiKey) {
+      return NextResponse.json({
+        summary: fallbackSummary(type, current ?? ''),
+      })
+    }
+
     const openrouter = getOpenRouter(apiKey)
 
     // Skip AI call if there's no previous input to compare
     if (!previous || !current) {
       return NextResponse.json({
-        summary: await getTitle(
-          type,
-          current,
-          apiKey || undefined,
-          model,
-        ),
+        summary: await getTitle(type, current, apiKey, model),
       })
     }
 
     if (previous === current) {
       return NextResponse.json({
-        summary: await getTitle(
-          type,
-          current,
-          apiKey || undefined,
-          model,
-        ),
+        summary: await getTitle(type, current, apiKey, model),
       })
     }
 
@@ -64,12 +66,7 @@ export async function POST(request: Request) {
 
     if (!added.length && !removed.length) {
       return NextResponse.json({
-        summary: await getTitle(
-          type,
-          current,
-          apiKey || undefined,
-          model,
-        ),
+        summary: await getTitle(type, current, apiKey, model),
       })
     }
 

@@ -90,6 +90,14 @@ export function PlanInput() {
 
   const handleGenerateTasks = async () => {
     try {
+      const openRouterKey = await db.getOpenRouterKey()
+      if (!openRouterKey) {
+        toast.error(
+          'Please set your OpenRouter API key in settings before generating tasks.',
+        )
+        return
+      }
+
       const input = plan?.content ?? inputValue
       if (!input) {
         throw new Error('Please enter a plan first')

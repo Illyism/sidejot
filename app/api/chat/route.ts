@@ -1,4 +1,8 @@
-import { getOpenRouter } from '@/lib/ai'
+import {
+  createApiKeyRequiredResponse,
+  getApiKeyFromRequest,
+  getOpenRouter,
+} from '@/lib/ai'
 import { AI_CONFIG } from '@/lib/config'
 import { streamText, convertToModelMessages } from 'ai'
 
@@ -6,8 +10,12 @@ import { streamText, convertToModelMessages } from 'ai'
 export const maxDuration = 30
 
 export async function POST(req: Request) {
+  const apiKey = getApiKeyFromRequest(req)
+  if (!apiKey) {
+    return createApiKeyRequiredResponse()
+  }
+
   const { messages } = await req.json()
-  const apiKey = req.headers.get('x-openai-key')
   const model = req.headers.get('x-model') || AI_CONFIG.defaultModel
   const openrouter = getOpenRouter(apiKey)
 

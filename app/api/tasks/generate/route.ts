@@ -1,4 +1,8 @@
-import { getOpenRouter } from '@/lib/ai'
+import {
+  createApiKeyRequiredResponse,
+  getApiKeyFromRequest,
+  getOpenRouter,
+} from '@/lib/ai'
 import { AI_CONFIG } from '@/lib/config'
 import { streamObject, createTextStreamResponse } from 'ai'
 import { generatePlanSchema } from './schema'
@@ -6,25 +10,15 @@ import { generatePlanSchema } from './schema'
 export async function POST(req: Request) {
   try {
     const input = await req.json()
-    const apiKey = req.headers.get('x-openai-key')
+    const apiKey = getApiKeyFromRequest(req)
     const model = req.headers.get('x-model') || AI_CONFIG.defaultModel
 
     if (!input || !input.content) {
       return new Response('Plan content is required', { status: 400 })
     }
 
-    // Check if API key is available
-    const finalApiKey = apiKey || process.env.OPENROUTER_API_KEY
-    if (!finalApiKey) {
-      return new Response(
-        JSON.stringify({
-          error: 'API key is required. Please set your OpenRouter API key in settings.',
-        }),
-        {
-          status: 401,
-          headers: { 'Content-Type': 'application/json' },
-        },
-      )
+    if (!apiKey) {
+      return createApiKeyRequiredResponse()
     }
 
     const openrouter = getOpenRouter(apiKey)
